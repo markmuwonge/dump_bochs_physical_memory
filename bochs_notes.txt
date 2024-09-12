@@ -1,0 +1,11 @@
+BREAKPOINT .text OFFSET - 1231EA
+
+CPU POINTER ADDR .data OFFSET - 75FC0 (arg 1)
+
+FUNCTION START .text OFFSET - 1B2620
+arg 1 - cpu pointer addr
+arg 2 - bochs physical address
+arg 3 - bytes to read
+arg 4 - receive bytes buffer
+
+
