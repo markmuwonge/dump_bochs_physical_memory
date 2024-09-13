@@ -2,6 +2,7 @@ package main
 
 import (
 	"dump_bochs_physical_memory/helper"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -26,13 +27,11 @@ var bochs_dbg_fetch_mem_address_data_size_param uint8 = 1
 var allocated_data2_memory_size = 0x1000
 var allocated_code_memory_size = 0x1000
 
-// int((math.Pow(2, 20)) * 100)
-var thread_timeout_millis = 10000
-
 var args struct {
-	PHYADDR      uint   `arg:"required"`
-	BYTECOUNT    uint   `arg:"required"`
-	DUMPFILEPATH string `arg:"required"`
+	PHYADDR             uint   `arg:"required"`
+	BYTECOUNT           uint   `arg:"required"`
+	THREADTIMEOUTMILLIS int    `arg:"required"`
+	DUMPFILEPATH        string `arg:"required"`
 }
 
 func main() {
@@ -102,7 +101,7 @@ func main() {
 	}
 	fatal(err)
 
-	_, err = windows.WaitForSingleObject((windows.Handle)(thread_handle), uint32(thread_timeout_millis))
+	_, err = windows.WaitForSingleObject((windows.Handle)(thread_handle), uint32(args.THREADTIMEOUTMILLIS))
 	if err != nil {
 		helper.FreeProcessMemory(target_process_handle, allocated_data_memory_address)
 		helper.FreeProcessMemory(target_process_handle, allocated_data2_memory_address)
@@ -111,13 +110,17 @@ func main() {
 	fatal(err)
 
 	thread_exit_code, err := syscallex.GetExitCodeThread((syscall.Handle)(thread_handle))
-	if err != nil {
+	exit_code_msg := fmt.Sprintln("*Remote thread", thread_id, "exit code:", thread_exit_code)
+
+	if err != nil || thread_exit_code != 0 {
 		helper.FreeProcessMemory(target_process_handle, allocated_data_memory_address)
 		helper.FreeProcessMemory(target_process_handle, allocated_data2_memory_address)
 		helper.FreeProcessMemory(target_process_handle, allocated_code_memory_address)
+		if thread_exit_code != 0 {
+			fatal(errors.New(exit_code_msg))
+		}
 	}
 	fatal(err)
-	log.Println("*Remote thread", thread_id, "exit code:", thread_exit_code)
 
 	read_process_memory, err := helper.ReadProcessMemory(target_process_handle, allocated_data_memory_address, uint64(args.BYTECOUNT))
 	if err != nil {
