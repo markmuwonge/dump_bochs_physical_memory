@@ -18,7 +18,9 @@ func AllocateProcessMemory(process_handle windows.Handle, allocated_memory_size 
 		log.Println(msg, ": failed")
 		return allocated_data_memory, err
 	} else {
+
 		log.Println(msg, ": succeeded at address", fmt.Sprintf("%x", allocated_data_memory))
 		return allocated_data_memory, nil
 	}
+
 }
