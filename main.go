@@ -10,9 +10,8 @@ import (
 
 var target_process_name = "bochsdbg.exe"
 
-//Bochs-2.6.11 
-var bochs_image_md5 = 46bb6791c069ca4323ea891b5a370b78;
-
+// Bochs-2.6.11
+var bochs_image_md5 = "46bb6791c069ca4323ea891b5a370b78"
 
 // // var bochs_dbg_fetch_mem_call_text_section_offset = 0x1231EA
 var bochs_dbg_fetch_mem_text_section_offset = 0x1B2620
@@ -36,6 +35,10 @@ func main() {
 
 	target_process_image_file_path, err := helper.GetModuleImageFilePath(target_process_handle, target_process_image_module_handle)
 	fatal(err)
+
+	err = helper.MD5Match(target_process_image_file_path, bochs_image_md5)
+	fatal(err)
+	return
 
 	target_process_image_text_section_va, err := helper.GetPESectionVirtualAddress(target_process_image_file_path, ".text")
 	fatal(err)
