@@ -85,9 +85,9 @@ func GetInjectInstructions(bochs_dbg_fetch_mem_address uint64, bochs_dbg_cpu_poi
 			instruction_pointers = append(instruction_pointers, call_rax_instruction)
 
 			increment_instruction := asm_builder.NewProg()
-			increment_instruction.As = x86.AINCW
+			increment_instruction.As = x86.AINCQ
 			increment_instruction.To.Type = obj.TYPE_MEM
-			increment_instruction.To.Offset = addresses[0] + 8
+			increment_instruction.To.Offset = loop_counter_address
 			instruction_pointers = append(instruction_pointers, increment_instruction)
 
 			jmp_instruction := asm_builder.NewProg()
